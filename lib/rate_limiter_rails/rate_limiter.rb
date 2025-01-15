@@ -11,18 +11,18 @@ module RateLimiterRails
 
     def allowed?(key)
       current_time = Time.now.to_i
-      pipeline = @redis.pipelined do
+      @redis.pipelined do
         @redis.zremrangebyscore(key, 0, current_time - @period)
         @redis.zadd(key, current_time, current_time)
-        @redis.zcount(key, "-inf", "+inf")
       end
-      count = pipeline[2]
+
+      count = @redis.zcount(key, "-inf", "+inf")
       @redis.expire(key, @period)
       count <= @limit
     end
 
-    def key_for(request)
-      "rate_limiter:ip:#{request.env['rate_limiter_rails.ip']}"
+    def key_for(request, controller_name, action_name)
+      "rate_limiter:ip:#{request.env['rate_limiter_rails.ip']}:#{controller_name}:#{action_name}"
     end
   end
 end

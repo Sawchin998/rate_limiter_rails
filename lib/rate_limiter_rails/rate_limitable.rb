@@ -13,10 +13,9 @@ module RateLimiterRails
     #
     # Rate limit
     def rate_limit!
-      # Fetch the rate limit settings for the current action
       action_config = RateLimiterRails.config.rate_limit_by_actions["#{controller_name}##{action_name}"]
 
-      # If no specific config is found, use default limit and period
+      # use default limit and period if not found
       action_config ||= { limit: RateLimiterRails.config.limit, period: RateLimiterRails.config.period }
 
       limiter = RateLimiter.new(
@@ -25,9 +24,8 @@ module RateLimiterRails
         period: action_config[:period]
       )
 
-      key = limiter.key_for(request)
+      key = limiter.key_for(request, controller_name, action_name)
 
-      # Check if the request is allowed
       render plain: "Rate limit exceeded", status: :too_many_requests unless limiter.allowed?(key)
     end
   end
