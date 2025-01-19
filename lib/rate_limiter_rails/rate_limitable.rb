@@ -4,29 +4,26 @@ module RateLimiterRails
   module RateLimitable
     extend ActiveSupport::Concern
 
-    included do
-      before_action :rate_limit!
-    end
-
-    private
-
     #
-    # Rate limit
-    def rate_limit!
-      action_config = RateLimiterRails.config.rate_limit_by_actions["#{controller_name}##{action_name}"]
-
-      # use default limit and period if not found
-      action_config ||= { limit: RateLimiterRails.config.limit, period: RateLimiterRails.config.period }
+    # Limits request rate based on config. controller and action
+    #
+    def rate_limit!(limit: nil, period: nil)
+      config = RateLimiterRails.config
+      limit ||= config.default_limit
+      period ||= config.default_period
 
       limiter = RateLimiter.new(
-        redis_url: RateLimiterRails.config.redis_url,
-        limit: action_config[:limit],
-        period: action_config[:period]
+        redis_url: config.redis_url,
+        limit:,
+        period:
       )
 
-      key = limiter.key_for(request, controller_name, action_name)
+      key = limiter.key_for(request, controller_name:, action_name:)
 
       render plain: "Rate limit exceeded", status: :too_many_requests unless limiter.allowed?(key)
+    rescue StandardError => e
+      Rails.logger.error "Failed to limit request rates: #{e.message}"
+      Rails.logger.error e
     end
   end
 end

@@ -20,17 +20,12 @@ module RateLimiterRails
 
   # Configuration
   class Configuration
-    attr_accessor :redis_url, :limit, :period, :rate_limit_by_actions
+    attr_accessor :redis_url, :default_limit, :default_period, :rate_limit_by_actions
 
     def initialize
       @redis_url = "redis://localhost:6379/1"
-      @limit = 100
-      @period = 120 # in seconds
-      @rate_limit_by_actions = {}
-    end
-
-    def set_action_rate_limit(controller, action, limit: 100, period: 120)
-      @rate_limit_by_actions["#{controller}##{action}"] = { limit: limit, period: period }
+      @default_limit = 100
+      @default_period = 120 # in seconds
     end
   end
 end
