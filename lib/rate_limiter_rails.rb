@@ -2,7 +2,6 @@
 
 require "redis"
 require_relative "rate_limiter_rails/version"
-require_relative "rate_limiter_rails/middleware"
 require_relative "rate_limiter_rails/rate_limiter"
 require_relative "rate_limiter_rails/rate_limitable"
 

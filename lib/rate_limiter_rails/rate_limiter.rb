@@ -22,7 +22,7 @@ module RateLimiterRails
     end
 
     def key_for(request, controller_name, action_name)
-      "rate_limiter:ip:#{request.env['rate_limiter_rails.ip']}:#{controller_name}:#{action_name}"
+      "rate_limiter:ip:#{request.ip}:#{controller_name}:#{action_name}"
     end
   end
 end
