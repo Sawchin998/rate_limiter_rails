@@ -21,8 +21,12 @@ module RateLimiterRails
       count <= @limit
     end
 
-    def key_for(request, controller_name: nil, action_name: nil)
-      "rate_limiter:ip:#{request.ip}:#{controller_name}:#{action_name}"
+    def key_for(request, current_user_id: nil, controller_name: nil, action_name: nil)
+      key = "rate_limiter:#{controller_name}:#{action_name}"
+
+      return "#{key}:ip:#{request.ip}" unless current_user_id.present?
+
+      "#{key}:user:#{current_user_id}"
     end
   end
 end
